@@ -1,0 +1,299 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@theme {
+  --font-sans:
+    "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Typography scales from Clairo Design System */
+  --font-size-5xl: 48px;
+  --font-size-4xl: 36px;
+  --font-size-3xl: 30px;
+  --font-size-2xl: 24px;
+  --font-size-xl: 20px;
+  --font-size-lg: 18px;
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --font-size-xs: 12px;
+  --font-size-xxs: 10px;
+
+  --line-height-5xl: 48px;
+  --line-height-4xl: 40px;
+  --line-height-3xl: 36px;
+  --line-height-2xl: 32px;
+  --line-height-xl: 28px;
+  --line-height-lg: 28px;
+  --line-height-base: 24px;
+  --line-height-sm: 20px;
+  --line-height-xs: 16px;
+
+  --font-weight-normal: 400;
+  --font-weight-bold: 700;
+}
+
+html,
+body {
+  @apply bg-white dark:bg-gray-950;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-xxxl: 32px;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+
+  /* Clairo Brand Colors */
+  --brand-primary-50: #fff0eb;
+  --brand-primary-100: #ffe2d6;
+  --brand-primary-200: #feb9a3;
+  --brand-primary-300: #fea589;
+  --brand-primary-400: #fd8158;
+  --brand-primary-500: #fc6737;
+  --brand-primary-600: #e55e32;
+  --brand-primary-700: #cc532c;
+  --brand-primary-800: #b34927;
+  --brand-primary-900: #993f22;
+
+  /* Base Colors */
+  --base-warmth-50: #faf8f5;
+  --base-warmth-100: #f7f4f0;
+  --base-warmth-200: #f0ebe4;
+  --base-warmth-300: #ede7e0;
+  --base-warmth-400: #e8e0d7;
+  --base-warmth-500: #d9cfc3;
+
+  /* Error/Destructive Colors */
+  --error-50: #fef2f2;
+  --error-100: #fee2e2;
+  --error-200: #fecaca;
+  --error-300: #fca5a5;
+  --error-400: #f87171;
+  --error-500: #e83333;
+  --error-600: #dc2626;
+  --error-700: #b91c1c;
+
+  /* Success Colors */
+  --success-50: #f0fdf4;
+  --success-100: #dcfce7;
+  --success-200: #bbf7d0;
+  --success-300: #86efac;
+  --success-400: #4ade80;
+  --success-500: #22c55e;
+  --success-600: #16a34a;
+
+  /* Warning Colors */
+  --warning-50: #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-300: #fcd34d;
+  --warning-400: #fbbf24;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+
+  /* Info Colors */
+  --info-50: #eff6ff;
+  --info-100: #dbeafe;
+  --info-200: #bfdbfe;
+  --info-300: #93c5fd;
+  --info-400: #60a5fa;
+  --info-500: #3b82f6;
+  --info-600: #2563eb;
+  --info-700: #1d4ed8;
+
+  --primary: #fc6737;
+  --primary-foreground: #ffffff;
+  --secondary: #fff0eb;
+  --secondary-foreground: #fc6737;
+  --muted: #f7f4f0;
+  --muted-foreground: #64748b;
+  --accent: #f9fafb;
+  --accent-foreground: #141c25;
+  --destructive: #e83333;
+  --border: #ede7e0;
+  --input: #ede7e0;
+  --ring: #fc6737;
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: #f9fafb;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #141c25;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f9fafb;
+  --sidebar-accent-foreground: #141c25;
+  --sidebar-border: #cbd5e1;
+  --sidebar-ring: #64748b;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f9fafb;
+  --card: #141c25;
+  --card-foreground: #f9fafb;
+  --popover: #141c25;
+  --popover-foreground: #f9fafb;
+  --primary: #f9fafb;
+  --primary-foreground: #141c25;
+  --secondary: #1e293b;
+  --secondary-foreground: #f9fafb;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f9fafb;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #334155;
+  --input: #334155;
+  --ring: #64748b;
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: #141c25;
+  --sidebar-foreground: #f9fafb;
+  --sidebar-primary: #64748b;
+  --sidebar-primary-foreground: #f9fafb;
+  --sidebar-accent: #1e293b;
+  --sidebar-accent-foreground: #f9fafb;
+  --sidebar-border: #334155;
+  --sidebar-ring: #64748b;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Collapsible animations */
+  @keyframes collapsible-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-collapsible-content-height);
+    }
+  }
+
+  @keyframes collapsible-up {
+    from {
+      height: var(--radix-collapsible-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+
+  .animate-collapsible-down {
+    animation: collapsible-down 0.2s ease-out;
+  }
+
+  .animate-collapsible-up {
+    animation: collapsible-up 0.2s ease-out;
+  }
+
+  /* Typography from Clairo Design System */
+  h1,
+  .h1 {
+    @apply text-5xl leading-[48px] font-bold;
+  }
+
+  h2,
+  .h2 {
+    @apply text-4xl leading-[40px] font-bold;
+  }
+
+  h3,
+  .h3 {
+    @apply text-3xl leading-[36px] font-normal;
+  }
+
+  h4,
+  .h4 {
+    @apply text-2xl leading-[32px] font-normal;
+  }
+
+  h5,
+  .h5 {
+    @apply text-base leading-[22px] font-bold;
+  }
+
+  p,
+  .paragraph {
+    @apply text-base leading-[24px];
+  }
+
+  .text-primary {
+    @apply text-[#0f172a] dark:text-[#f9fafb];
+  }
+
+  .text-secondary {
+    @apply text-[#64748b] dark:text-[#94a3b8];
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
+}
