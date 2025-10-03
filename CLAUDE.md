@@ -95,7 +95,6 @@ All data access is simulated through a **mock repository** layer, enabling front
   - **Vite**: The build tool and development server.
   - **TailwindCSS**: A utility-first CSS framework.
   - **shadcn/ui**: A collection of reusable UI components.
-  - **PostHog**: The analytics and feature flagging platform.
 
 -----
 
@@ -112,8 +111,4 @@ All data access is simulated through a **mock repository** layer, enabling front
   - **Code Organization**: Strictly follow the `core/` vs. `features/` separation.
       - Code in `core/` should be generic and reusable across the entire application.
       - Code in `features/` should be self-contained and specific to a single domain.
-  - **PostHog Integration**:
-      - Never hardcode API keys; always use environment variables.
-      - Define feature flags in TypeScript enums with `UPPERCASE_SNAKE_CASE` naming.
-      - Centralize custom event properties in shared `const` objects or enums to maintain consistency.
   - **Routing**: When creating new route files in `app/routes/`, always add the corresponding route configuration to `app/routes.ts` using the appropriate route helper (index, route, etc.)

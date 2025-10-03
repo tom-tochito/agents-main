@@ -1,6 +1,5 @@
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from "react-router"
 import * as React from "react"
-import { PostHogProvider } from "posthog-js/react"
 import type { Route } from "./+types/root"
 import { setupDebugUtils } from "~/features/agents/utils/debug"
 import "./app.css"
@@ -44,27 +43,7 @@ export default function App() {
     }
   }, [])
   
-  const apiKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
-  const apiHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
-  
-  // Temporarily disable PostHog if no API key is provided
-  if (!apiKey || !apiHost) {
-    return <Outlet />
-  }
-
-  return (
-    <PostHogProvider
-      apiKey={apiKey}
-      options={{
-        api_host: apiHost,
-        person_profiles: "identified_only",
-        capture_pageview: false,
-        capture_pageleave: false,
-      }}
-    >
-      <Outlet />
-    </PostHogProvider>
-  )
+  return <Outlet />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
