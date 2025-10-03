@@ -170,7 +170,7 @@ export default function AgentDetailPage() {
                       <AgentAvatar 
                         color={agentColor}
                         bgColor="#f7f4f0"
-                        size="xl"
+                        size="lg"
                         className="w-24 h-24"
                       />
                     </div>

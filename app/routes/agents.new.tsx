@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useNavigate } from 'react-router'
 import { Button } from '~/core/components/ui/button/button'
 import { Input } from '~/core/components/ui/input/input'
@@ -23,18 +23,22 @@ import {
   ChevronDown,
   Plus,
   Trash2,
-  Play,
-  User,
-  StickyNote
+  Play
 } from 'lucide-react'
 import { cn } from '~/core/lib/utils'
 import { getAgentService } from '~/features/agents/services/agent.service'
 import { AgentAvatar } from '~/features/agents/components/agent-avatar'
-import { WorkflowEditor } from '~/features/agents/components/workflow-editor'
 import { AddPromptModal } from '~/features/agents/components/add-prompt-modal'
 import { AddKnowledgeModal } from '~/features/agents/components/add-knowledge-modal'
 import { AddToolModal } from '~/features/agents/components/add-tool-modal'
 import { AddPersonaModal } from '~/features/agents/components/add-persona-modal'
+
+// Lazy load the workflow editor to optimize bundle size
+const WorkflowEditor = lazy(() => 
+  import('~/features/agents/components/workflow-editor').then(module => ({ 
+    default: module.WorkflowEditor 
+  }))
+)
 
 interface AgentFormData {
   name: string
@@ -733,7 +737,13 @@ export default function NewAgentPage() {
                     
                     {/* Workflow Editor */}
                     <div className="flex-1">
-                      <WorkflowEditor />
+                      <Suspense fallback={
+                        <div className="flex justify-center items-center min-h-[400px]">
+                          <div className="text-gray-500">Loading workflow editor...</div>
+                        </div>
+                      }>
+                        <WorkflowEditor />
+                      </Suspense>
                     </div>
                   </div>
                 )}
