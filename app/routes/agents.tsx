@@ -1,16 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { type LoaderFunction } from 'react-router'
 import { useLoaderData, useNavigate } from 'react-router'
 import { AgentCard } from '~/features/agents/components/agent-card'
 import { AgentListItem } from '~/features/agents/components/agent-list-item'
 import { AgentsSidebar } from '~/features/agents/components/sidebar'
-import { AgentMockRepository } from '~/features/agents/repositories/agent-mock.repository'
+import { getAgentService } from '~/features/agents/services/agent.service'
 import type { Agent } from '~/features/agents/models/agent.model'
 import { Button } from '~/core/components/ui/button/button'
 import { Input } from '~/core/components/ui/input/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/core/components/ui/select/select'
 import { Badge } from '~/core/components/ui/badge/badge'
-import { Search, Plus, Grid3X3, List } from 'lucide-react'
+import { Search, Plus, Grid3X3, List, RefreshCw } from 'lucide-react'
 import { cn } from '~/core/lib/utils'
 
 interface LoaderData {
@@ -19,10 +19,10 @@ interface LoaderData {
 }
 
 export const loader: LoaderFunction = async () => {
-  const repository = new AgentMockRepository()
+  const agentService = getAgentService()
   const [agents, categories] = await Promise.all([
-    repository.findAll(),
-    repository.getCategories()
+    agentService.getAllAgents(),
+    agentService.getCategories()
   ])
   
   return { agents, categories }
@@ -39,8 +39,32 @@ export default function AgentsPage() {
   const [selectedWorkflow, setSelectedWorkflow] = useState<string>('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [agentTypeFilter, setAgentTypeFilter] = useState<'all' | 'document' | 'chat'>('all')
+  const [isRefreshing, setIsRefreshing] = useState(false)
   
-  const repository = new AgentMockRepository()
+  const agentService = getAgentService()
+
+  const loadAgents = async () => {
+    if (typeof window !== 'undefined') {
+      setIsRefreshing(true)
+      const freshAgents = await agentService.getAllAgents()
+      console.log('Client-side loaded agents:', freshAgents.length)
+      setAgents(freshAgents)
+      setIsRefreshing(false)
+    }
+  }
+
+  // Reload agents on client side to get latest data
+  useEffect(() => {
+    loadAgents()
+    
+    // Also reload when window regains focus (in case user comes back from creating an agent)
+    const handleFocus = () => {
+      loadAgents()
+    }
+    
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [])
   
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = !search || 
@@ -68,14 +92,14 @@ export default function AgentsPage() {
   })
   
   const handleToggleActive = async (id: string, active: boolean) => {
-    const updated = await repository.updateStatus(id, active)
+    const updated = await agentService.updateAgentStatus(id, active)
     if (updated) {
       setAgents(prev => prev.map(a => a.id === id ? { ...a, isActive: active } : a))
     }
   }
   
   const handleRunAgent = async (id: string) => {
-    await repository.runAgent(id)
+    await agentService.runAgent(id)
     console.log(`Running agent ${id}`)
   }
   
@@ -187,9 +211,19 @@ export default function AgentsPage() {
             </div>
             
             <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-9"
+              onClick={loadAgents}
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={cn("h-4 w-4 mr-1", isRefreshing && "animate-spin")} />
+              Refresh
+            </Button>
+            <Button 
               variant="primary" 
               size="sm" 
-              className="h-9 ml-auto"
+              className="h-9"
               onClick={() => navigate('/agents/new')}
             >
               <Plus className="h-4 w-4 mr-1" />

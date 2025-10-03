@@ -2,6 +2,7 @@ import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration }
 import * as React from "react"
 import { PostHogProvider } from "posthog-js/react"
 import type { Route } from "./+types/root"
+import { setupDebugUtils } from "~/features/agents/utils/debug"
 import "./app.css"
 
 export const links: Route.LinksFunction = () => [
@@ -36,6 +37,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  // Set up debug utilities in development
+  React.useEffect(() => {
+    if (import.meta.env.DEV) {
+      setupDebugUtils()
+    }
+  }, [])
+  
   const apiKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY
   const apiHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST
   

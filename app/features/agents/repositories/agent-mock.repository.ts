@@ -10,8 +10,86 @@ export interface CreateAgentDto {
   description?: string
 }
 
+const STORAGE_KEY = 'ai-agents-mock-data'
+
 export class AgentMockRepository {
-  private agents: Agent[] = [
+  private static instance: AgentMockRepository | null = null
+  private agents: Agent[] = []
+  private initialized = false
+
+  private constructor() {
+    // Private constructor for singleton
+  }
+
+  static getInstance(): AgentMockRepository {
+    if (!AgentMockRepository.instance) {
+      AgentMockRepository.instance = new AgentMockRepository()
+    }
+    return AgentMockRepository.instance
+  }
+
+  private ensureInitialized(): void {
+    // Always reload on client to get latest data
+    if (typeof window !== 'undefined') {
+      this.loadFromStorage()
+      this.initialized = true
+    } else if (!this.initialized) {
+      this.loadFromStorage()
+      this.initialized = true
+    }
+  }
+
+  private loadFromStorage(): void {
+    if (typeof window === 'undefined') {
+      // Server-side: always use default agents
+      console.log('Repository: Server-side, initializing defaults')
+      this.initializeDefaultAgents()
+      return
+    }
+
+    // Client-side: try to load from localStorage
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      console.log('Repository: Loading from localStorage, found:', stored ? 'data' : 'no data')
+      
+      if (stored) {
+        const data = JSON.parse(stored)
+        this.agents = data.map((agent: any) => ({
+          ...agent,
+          createdAt: new Date(agent.createdAt),
+          updatedAt: new Date(agent.updatedAt),
+          lastRunAt: agent.lastRunAt ? new Date(agent.lastRunAt) : undefined
+        }))
+        
+        console.log(`Repository: Loaded ${this.agents.length} agents from storage`)
+        
+        // If no agents loaded, initialize defaults
+        if (this.agents.length === 0) {
+          console.log('Repository: No agents in storage, initializing defaults')
+          this.initializeDefaultAgents()
+        }
+      } else {
+        console.log('Repository: No stored data, initializing defaults')
+        this.initializeDefaultAgents()
+      }
+    } catch (error) {
+      console.error('Error loading agents from storage:', error)
+      this.initializeDefaultAgents()
+    }
+  }
+
+  private saveToStorage(): void {
+    if (typeof window === 'undefined') return
+    
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.agents))
+    } catch (error) {
+      console.error('Error saving agents to storage:', error)
+    }
+  }
+
+  private initializeDefaultAgents(): void {
+    this.agents = [
     {
       id: '1',
       name: 'Archie',
@@ -219,11 +297,14 @@ export class AgentMockRepository {
       updatedAt: new Date('2024-09-16'),
       runCount: 56
     }
-  ]
+    ]
+  }
 
   async findAll(filters?: AgentFilters): Promise<Agent[]> {
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 100))
     
+    console.log(`Repository: findAll() - Total agents: ${this.agents.length}`)
     let result = [...this.agents]
     
     if (filters?.search) {
@@ -253,11 +334,17 @@ export class AgentMockRepository {
   }
 
   async findById(id: string): Promise<Agent | null> {
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 50))
-    return this.agents.find(agent => agent.id === id) || null
+    
+    const agent = this.agents.find(agent => agent.id === id) || null
+    console.log(`Repository: findById(${id}) found:`, agent)
+    console.log(`Repository: Current agents list:`, this.agents.map(a => ({ id: a.id, name: a.name })))
+    return agent
   }
 
   async updateStatus(id: string, isActive: boolean): Promise<Agent | null> {
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 200))
     
     const agent = this.agents.find(a => a.id === id)
@@ -268,22 +355,26 @@ export class AgentMockRepository {
         agent.lastRunAt = new Date()
         agent.runCount++
       }
+      this.saveToStorage()
     }
     
     return agent || null
   }
 
   async runAgent(id: string): Promise<void> {
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 500))
     
     const agent = this.agents.find(a => a.id === id)
     if (agent) {
       agent.lastRunAt = new Date()
       agent.runCount++
+      this.saveToStorage()
     }
   }
 
   async getCategories(): Promise<Array<{ value: string; label: string; count: number }>> {
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 50))
     
     const categories = [
@@ -306,6 +397,8 @@ export class AgentMockRepository {
   }
 
   async createAgent(data: CreateAgentDto): Promise<Agent> {
+    console.log('Repository: Creating agent with data:', data)
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 200))
     
     const newAgent: Agent = {
@@ -317,8 +410,8 @@ export class AgentMockRepository {
       categoryLabel: 'Business & Strategy',
       title: data.jobTitle,
       description: data.description || `${data.name} is here to help with ${data.jobTitle.toLowerCase()}.`,
-      status: 'inactive',
-      isActive: false,
+      status: 'active',
+      isActive: true,
       tools: [],
       workflows: [],
       createdAt: new Date(),
@@ -326,15 +419,36 @@ export class AgentMockRepository {
       runCount: 0
     }
     
+    console.log('Repository: Created agent object:', newAgent)
     this.agents.push(newAgent)
+    console.log('Repository: Total agents after push:', this.agents.length)
+    
+    this.saveToStorage()
+    console.log('Repository: Saved to storage')
+    
     return newAgent
   }
 
   async deleteAgent(id: string): Promise<void> {
+    this.ensureInitialized()
     await new Promise(resolve => setTimeout(resolve, 200))
     const index = this.agents.findIndex(a => a.id === id)
     if (index !== -1) {
       this.agents.splice(index, 1)
+      this.saveToStorage()
     }
+  }
+
+  // Method to reset to default agents (useful for testing)
+  resetToDefaults(): void {
+    console.log('Repository: Resetting to default agents')
+    this.initializeDefaultAgents()
+    this.saveToStorage()
+  }
+
+  // Method to get all agents including newly created ones
+  getAllAgentsSync(): Agent[] {
+    this.ensureInitialized()
+    return [...this.agents]
   }
 }

@@ -28,7 +28,7 @@ import {
   StickyNote
 } from 'lucide-react'
 import { cn } from '~/core/lib/utils'
-import { type CreateAgentDto } from '~/features/agents/repositories/agent-mock.repository'
+import { getAgentService } from '~/features/agents/services/agent.service'
 import { AgentAvatar } from '~/features/agents/components/agent-avatar'
 import { WorkflowEditor } from '~/features/agents/components/workflow-editor'
 import { AddPromptModal } from '~/features/agents/components/add-prompt-modal'
@@ -138,19 +138,28 @@ export default function NewAgentPage() {
     setFormData(prev => ({ ...prev, selectedModel: modelId }))
   }
 
-  const handleSave = () => {
-    const _createDto: CreateAgentDto = {
-      name: formData.name,
-      jobTitle: formData.jobTitle,
-      avatar: formData.avatar,
-      color: formData.color,
-      model: formData.selectedModel,
-      teamUse: formData.teamUse,
-      description: formData.description
+  const handleSave = async () => {
+    try {
+      console.log('Creating agent with data:', formData)
+      
+      const agentService = getAgentService()
+      const newAgent = await agentService.createAgent({
+        name: formData.name || 'New Agent',
+        jobTitle: formData.jobTitle || 'Agent Assistant',
+        avatar: formData.avatar,
+        color: formData.color,
+        model: formData.selectedModel || 'gpt-4o',
+        teamUse: formData.teamUse,
+        description: formData.description || `${formData.name || 'This agent'} helps with various tasks.`
+      })
+      
+      console.log('Created agent:', newAgent)
+      // Navigate to the agent detail page
+      navigate(`/agents/${newAgent.id}`)
+    } catch (error) {
+      console.error('Error creating agent:', error)
+      alert('Failed to create agent. Please try again.')
     }
-
-    void _createDto
-    navigate('/agents/1')
   }
 
   const handleNext = () => {
@@ -318,7 +327,9 @@ export default function NewAgentPage() {
                 </Button>
                 <Button 
                   className="bg-[#fc6737] hover:bg-[#fc6737]/90 text-white font-bold h-9 px-4 shadow-sm"
-                  onClick={() => navigate('/agents')}
+                  onClick={async () => {
+                    await handleSave()
+                  }}
                 >
                   Publish
                 </Button>
@@ -343,7 +354,9 @@ export default function NewAgentPage() {
                 </Button>
                 <Button 
                   className="bg-[#fc6737] hover:bg-[#fc6737]/90 text-white font-bold h-9 px-4 shadow-sm"
-                  onClick={() => navigate('/agents')}
+                  onClick={async () => {
+                    await handleSave()
+                  }}
                 >
                   Publish Agent
                 </Button>
@@ -1229,7 +1242,9 @@ export default function NewAgentPage() {
                           <Button 
                             className="bg-[#fc6737] hover:bg-[#fc6737]/90 text-white"
                             size="sm"
-                            onClick={() => navigate('/agents')}
+                            onClick={async () => {
+                              await handleSave()
+                            }}
                           >
                             Save
                           </Button>
